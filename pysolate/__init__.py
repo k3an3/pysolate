@@ -19,9 +19,11 @@ def main():
     args = parser.parse_args()
 
     if not os.path.isdir(storage_location):
-        os.mkdir(storage_location)
-        os.mkdir(os.path.join(storage_location, 'apps'))
-        os.mkdir(os.path.join(storage_location, 'storage'))
+        for directory in (storage_location, os.path.join(storage_location, 'apps'), os.path.join(storage_location, 'storage')):
+            try:
+                os.mkdir(directory)
+            except FileExistsError:
+                pass
     # shelf = shelve.open(os.path.join(storage_location, 'data'))
     # shelf.close()
 
@@ -34,7 +36,10 @@ def main():
         volumes.append('{}:/cwd'.format(os.getcwd()))
 
     if not args.no_persist:
-        os.mkdir(os.path.join(storage_location, 'storage', args.command))
+        try:
+            os.mkdir(os.path.join(storage_location, 'storage', args.command))
+        except FileExistsError:
+            pass
         volumes.append('{}:/home/user'.format(os.path.join(storage_location, 'storage', args.command)))
 
     cmd = run_command.format('-v ' + ' -v '.join(volumes), ' '.join(extras), os.environ['DISPLAY'], args.command)
