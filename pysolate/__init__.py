@@ -72,9 +72,14 @@ def main():
             print("Passing CWD to process.")
 
     if pass_tmp:
-        volumes.append('/tmp/.pysolate_{}:/tmp'.format(cmd_key))
+        shared_dir = '.pysolate_{}'.format(cmd_key)
+        try:
+            os.mkdir(os.path.join('/', 'tmp', shared_dir))
+        except FileExistsError:
+            pass
+        volumes.append('/tmp/{}:/share'.format(shared_dir))
         if args.verbose:
-            print("Passing /tmp/.pysolate_{} to process.".format(cmd_key))
+            print("Passing /tmp/{} to /share.".format(shared_dir))
 
     if persist:
         try:
