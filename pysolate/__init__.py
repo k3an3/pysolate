@@ -96,4 +96,5 @@ def main():
     if interactive:
         os.system(cmd)
     else:
+        os.system('sudo -S true')
         subprocess.Popen(cmd, stderr=subprocess.DEVNULL, shell=True)
