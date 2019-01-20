@@ -83,10 +83,10 @@ def main():
 
     if persist:
         try:
-            os.mkdir(os.path.join(storage_location, 'storage', args.command))
+            os.mkdir(os.path.join(storage_location, 'storage', cmd_key))
         except FileExistsError:
             pass
-        volumes.append('{}:/home/user'.format(os.path.join(storage_location, 'storage', args.command)))
+        volumes.append('{}:/home/user'.format(os.path.join(storage_location, 'storage', cmd-key)))
         if args.verbose:
             print("Using temporary filesystem.")
     else:
