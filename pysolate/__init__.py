@@ -3,6 +3,8 @@ import os
 import shelve
 import subprocess
 
+update_command = "sudo docker build -t k3an3/contain {}".format(os.path.join(os.path.dirname(__file__), 'res'))
+
 
 class Config:
     def __init__(self, full_command: str, pass_dir: bool = False, pass_tmp: bool = True,
@@ -20,7 +22,7 @@ def main():
     run_command = """sudo docker run --rm -it \
     {} {} \
     -e DISPLAY=unix{} \
-    --device /dev/snd contain {}"""
+    --device /dev/snd k3an3/contain {}"""
 
     parser = argparse.ArgumentParser(description='Run containerized applications.')
     parser.add_argument('-r', '--reset', dest='reset', action='store_true', help='Replace stored settings with '
@@ -32,12 +34,18 @@ def main():
                                                                                         'in '
                                                                                         '/tmp/{cmd}.')
     parser.add_argument('-u', '--uid', dest='uid', type=int, default=1000, help='UID of user to run process as.')
+    parser.add_argument('-U', '--update', dest='update', action='store_true', help='Update the underlying container '
+                                                                                   'first.')
     parser.add_argument('-p', '--no-persist', dest='no_persist', action='store_true', help="Don't persist files in "
                                                                                            "home directory after "
                                                                                            "session.")
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Print detailed output.')
     parser.add_argument('command', default='bash', nargs='?', help='Command to run in container.')
     args = parser.parse_args()
+
+    if args.update:
+        os.system('sudo docker pull debian:stable-slim')
+        os.system(update_command)
 
     if not os.path.isdir(storage_location):
         for directory in (

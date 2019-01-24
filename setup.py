@@ -8,6 +8,7 @@ setup(
     license='MIT',
     author="Keane O'Kelley",
     author_email='keane.m.okelley@gmail.com',
+    include_package_data=True,
     description='',
     entry_points={
         'console_scripts': [
