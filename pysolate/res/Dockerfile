@@ -4,6 +4,10 @@ RUN apt-get update && apt-get install -y \
 	openjfx \
 	default-jre \
 	firefox-esr \
+    python3-pip \
+    git \
+    vim \
+    iproute2 \
 	libasound2 \
 	libdbus-glib-1-2 \
 	libgtk-3-0 \

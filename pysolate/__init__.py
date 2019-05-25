@@ -8,13 +8,14 @@ update_command = "sudo docker build -t k3an3/contain {}".format(os.path.join(os.
 
 class Config:
     def __init__(self, full_command: str, pass_dir: bool = False, pass_tmp: bool = True,
-                 uid: int = 1000, persist: bool = True, interactive: bool = False):
+                 uid: int = 1000, persist: bool = True, interactive: bool = False, privileged: bool = False):
         self.full_command = full_command
         self.pass_dir = pass_dir
         self.uid = uid
         self.persist = persist
         self.tmp = pass_tmp
         self.interactive = interactive
+        self.privileged = privileged
 
 
 def main():
@@ -40,6 +41,7 @@ def main():
                                                                                            "home directory after "
                                                                                            "session.")
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Print detailed output.')
+    parser.add_argument('-l', '--privileged', dest='privileged', action='store_true', help='Use privileged mode.')
     parser.add_argument('command', default='bash', nargs='?', help='Command to run in container.')
     args = parser.parse_args()
 
@@ -61,12 +63,13 @@ def main():
     config = shelf.get(cmd_key)
     if not config or args.reset:
         config = Config(args.command, args.dir, not args.no_tmp, args.uid,
-                        not args.no_persist, args.interactive)
+                        not args.no_persist, args.interactive, args.privileged)
         shelf[cmd_key] = config
     pass_dir = config.pass_dir or args.dir
     pass_tmp = config.tmp and not args.no_tmp
     persist = config.persist and not args.no_persist
     interactive = config.interactive or args.interactive
+    privileged = config.privileged or args.privileged
     shelf.close()
 
     extras = ["-u {}".format(args.uid)]
@@ -100,6 +103,12 @@ def main():
     else:
         if args.verbose:
             print("Using persistent filesystem.")
+
+    if privileged:
+        if args.verbose:
+            print("Privileged mode.")
+        extras.append('--privileged')
+        extras.append('--net=host')
 
     cmd = run_command.format('-v ' + ' -v '.join(volumes), ' '.join(extras), os.environ['DISPLAY'], args.command)
     if args.verbose:
