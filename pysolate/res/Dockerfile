@@ -17,7 +17,6 @@ RUN apt-get update && apt-get install -y \
 	libx11-xcb1 \
 	libcanberra-gtk-module \
 	--no-install-recommends \
-	&& rm -rf /var/lib/apt/lists/*
 
 ENV HOME /home/user
 RUN useradd --create-home --home-dir $HOME user \
