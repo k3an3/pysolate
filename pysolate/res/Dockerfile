@@ -4,6 +4,7 @@ RUN apt-get update && apt-get install -y \
 	openjfx \
 	default-jre \
 	firefox-esr \
+    chromium \
     python3-pip \
     git \
     vim \

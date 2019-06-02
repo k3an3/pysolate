@@ -3,7 +3,7 @@ import os
 import shelve
 import subprocess
 
-update_command = "sudo docker build -t k3an3/contain {}".format(os.path.join(os.path.dirname(__file__), 'res'))
+update_command = "sudo docker build --no-cache -t k3an3/contain {}".format(os.path.join(os.path.dirname(__file__), 'res'))
 
 
 class Config:
