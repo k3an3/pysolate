@@ -46,9 +46,8 @@ def container_exists() -> bool:
             if age and int(age.group(1)) > 14:
                 answer = input("Container is {} days old, perform update? [Y/n]: ")
                 if answer.lower() in ['', 'y']:
-                    update()
-            return
-    update()
+                    return False
+            return True
 
 
 def main():
@@ -79,7 +78,7 @@ def main():
     parser.add_argument('command', default='bash', nargs='?', help='Command to run in container.')
     args = parser.parse_args()
 
-    if args.update:
+    if args.update or not container_exists():
         update()
 
     if not os.path.isdir(storage_location):
