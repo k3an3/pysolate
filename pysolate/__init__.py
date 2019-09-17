@@ -1,9 +1,24 @@
 import argparse
 import os
+import re
 import shelve
 import subprocess
+from shutil import which
 
-update_command = "sudo docker build --no-cache -t k3an3/contain {}".format(os.path.join(os.path.dirname(__file__), 'res'))
+DOCKER_EXEC = which('docker')
+PODMAN_EXEC = which('podman')
+CONTAINER_NAME = 'k3an3/contain'
+
+if DOCKER_EXEC:
+    executable = 'sudo ' + DOCKER_EXEC
+elif PODMAN_EXEC:
+    executable = PODMAN_EXEC
+else:
+    print("No suitable containerization engines found.")
+    raise SystemExit
+
+update_command = "{} build --no-cache -t {} {}".format(executable, CONTAINER_NAME,
+                                                       os.path.join(os.path.dirname(__file__), 'res'))
 
 
 class Config:
@@ -18,14 +33,33 @@ class Config:
         self.privileged = privileged
 
 
+def update() -> None:
+    os.system('{} pull debian:stable-slim'.format(executable))
+    os.system(update_command)
+
+
+def container_exists() -> bool:
+    out = subprocess.run([executable, 'images'], capture_output=True).stdout.decode()
+    for line in out.split('\n'):
+        if CONTAINER_NAME in line:
+            age = re.search(r'([0-9]+) days ago', line)
+            if age and int(age.group(1)) > 14:
+                answer = input("Container is {} days old, perform update? [Y/n]: ")
+                if answer.lower() in ['', 'y']:
+                    update()
+            return
+    update()
+
+
 def main():
     storage_location = os.path.expanduser('~/.config/pysolate')
-    run_command = """sudo docker run --rm -it \
+    run_command = """{} run --rm -it \
     {} {} \
     -e DISPLAY=unix{} \
-    --device /dev/snd k3an3/contain {}"""
+    --device /dev/snd {} {}"""
 
-    parser = argparse.ArgumentParser(description='Run containerized applications.')
+    parser = argparse.ArgumentParser(description='Run containerized applications.',
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-r', '--reset', dest='reset', action='store_true', help='Replace stored settings with '
                                                                                  'provided.')
     parser.add_argument('-d', '--pass-dir', dest='dir', action='store_true', help='Pass CWD to container.')
@@ -46,8 +80,7 @@ def main():
     args = parser.parse_args()
 
     if args.update:
-        os.system('sudo docker pull debian:stable-slim')
-        os.system(update_command)
+        update()
 
     if not os.path.isdir(storage_location):
         for directory in (
@@ -110,7 +143,8 @@ def main():
         extras.append('--privileged')
         extras.append('--net=host')
 
-    cmd = run_command.format('-v ' + ' -v '.join(volumes), ' '.join(extras), os.environ['DISPLAY'], args.command)
+    cmd = run_command.format(executable, '-v ' + ' -v '.join(volumes), ' '.join(extras), os.environ['DISPLAY'],
+                             CONTAINER_NAME, args.command)
     if args.verbose:
         print("Full command:", cmd)
         print("Running as user:", args.uid)
