@@ -42,9 +42,9 @@ def container_exists() -> bool:
     out = subprocess.run([*executable.split(), 'images'], capture_output=True).stdout.decode()
     for line in out.split('\n'):
         if CONTAINER_NAME in line:
-            age = re.search(r'([0-9]+) days ago', line)
-            if age and int(age.group(1)) > 14:
-                answer = input("Container is {} days old, perform update? [Y/n]: ")
+            age = re.search(r'([0-9]+) weeks ago', line)
+            if age and int(age.group(1)) > 2:
+                answer = input("Container is {} weeks old, perform update? [Y/n]: ")
                 if answer.lower() in ['', 'y']:
                     return False
             return True
