@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends
 
 ENV HOME /home/user
-RUN useradd --create-home --home-dir $HOME user \
+RUN useradd --shell /bin/bash --create-home --home-dir $HOME user \
     && chown -R user:user $HOME
 ENV PATH "$PATH:/apps"
 

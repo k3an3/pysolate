@@ -39,7 +39,7 @@ def update() -> None:
 
 
 def container_exists() -> bool:
-    out = subprocess.run([executable, 'images'], capture_output=True).stdout.decode()
+    out = subprocess.run([*executable.split(), 'images'], capture_output=True).stdout.decode()
     for line in out.split('\n'):
         if CONTAINER_NAME in line:
             age = re.search(r'([0-9]+) days ago', line)
@@ -151,5 +151,6 @@ def main():
     if interactive:
         os.system(cmd)
     else:
-        os.system('sudo -S true')
+        if 'sudo' in cmd:
+            os.system('sudo -S true')
         subprocess.Popen(cmd, stderr=subprocess.DEVNULL, shell=True)
