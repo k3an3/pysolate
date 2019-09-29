@@ -8,18 +8,17 @@ from typing import Dict
 from pysolate import AppConfig, CONFIG_PATH, get_config_value
 
 build_template = """FROM {base_image}
-RUN mkdir -p /usr/share/man/man1/
-RUN apt-get update \
-    && apt-get upgrade -y \
-    && apt-get dist-upgrade -y \
-    && apt-get install -y --no-install-recommends {packages}
-
 ENV HOME /home/{username}
 RUN useradd --shell /bin/bash --create-home --home-dir $HOME {username} --uid {uid} \
                                            && chown -R {username}:{username} $HOME
 ENV PATH "$PATH:/apps"
 
 WORKDIR $HOME
+RUN mkdir -p /usr/share/man/man1/
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get dist-upgrade -y \
+    && apt-get install -y --no-install-recommends {packages}
 USER {username}
 """
 

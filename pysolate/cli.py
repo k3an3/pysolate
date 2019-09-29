@@ -1,4 +1,3 @@
-import _gdbm
 import argparse
 import os
 import shelve
@@ -26,6 +25,9 @@ def parse_args():
                                                                            'container.')
     parser.add_argument('-U', '--update', action='store_true', help='Update the underlying container '
                                                                     'first.')
+    parser.add_argument('-R', '--update-with-cache', action='store_true', help='Update the underlying image '
+                                                                               'first, allowing the container '
+                                                                               'engine to use its cache.')
     parser.add_argument('-p', '--no-persist', action='store_true', help="Don't persist files in "
                                                                         "home directory after "
                                                                         "session.")
@@ -66,7 +68,7 @@ def get_main_config() -> Dict:
 def load_shelf() -> shelve.Shelf:
     try:
         return shelve.open(os.path.join(CONFIG_PATH, 'data'))
-    except _gdbm.error:
+    except OSError:
         print("Failed to open shelve config store. Maybe another instance has locked it? Bailing...")
         raise SystemExit
 
@@ -98,8 +100,8 @@ def main():
     main_config = get_main_config()
     core_config = main_config['pysolate']
 
-    if args.update or container_build_required():
-        build_container(core_config, args.reset)
+    if args.update or args.update_with_cache or container_build_required():
+        build_container(core_config, args.update_with_cache)
 
     cmd_key = args.command.split(" ")[0]
     run_config = get_cmd_config(cmd_key, args)
