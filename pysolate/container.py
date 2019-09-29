@@ -5,7 +5,7 @@ from shutil import which
 from tempfile import NamedTemporaryFile
 from typing import Dict
 
-from pysolate import AppConfig, CONFIG_PATH, get_config_value
+from pysolate import AppConfig, CONFIG_PATH, get_config_value, log
 
 build_template = """FROM {base_image}
 ENV HOME /home/{username}
@@ -47,7 +47,7 @@ def build_container(config: Dict, cache: bool = False) -> None:
     try:
         subprocess.run([executable, 'pull', base_image], check=True)
     except subprocess.CalledProcessError:
-        print(f"Unable to pull base image '{base_image}'. Bailing...")
+        log.error(f"Unable to pull base image '{base_image}'. Bailing...")
         raise SystemExit
     with NamedTemporaryFile(mode="w+") as tf:
         tf.write(build_template.format(**config))
@@ -59,8 +59,9 @@ def build_container(config: Dict, cache: bool = False) -> None:
         try:
             subprocess.run(build_command, check=True)
         except subprocess.CalledProcessError:
-            print(f"Failed to build {IMAGE_NAME}. Bailing...")
+            log.error(f"Failed to build {IMAGE_NAME}. Bailing...")
             raise SystemExit
+    log.success("Built", IMAGE_NAME, "successfully.")
 
 
 def container_build_required() -> bool:
@@ -86,7 +87,7 @@ def prepare_run_command(config: AppConfig, full_command: str, verbose: bool) -> 
     if config.pass_dir:
         volumes.append('{}:/cwd'.format(os.getcwd()))
         if verbose:
-            print("Passing CWD to process.")
+            log.info("Passing CWD to process.")
 
     if config.pass_tmp:
         shared_dir = '.pysolate_{}'.format(config.get_key())
@@ -96,7 +97,7 @@ def prepare_run_command(config: AppConfig, full_command: str, verbose: bool) -> 
             pass
         volumes.append('/tmp/{}:/share'.format(shared_dir))
         if verbose:
-            print("Passing /tmp/{} to /share.".format(shared_dir))
+            log.info("Passing /tmp/{} to /share.".format(shared_dir))
 
     if config.persist:
         try:
@@ -105,14 +106,14 @@ def prepare_run_command(config: AppConfig, full_command: str, verbose: bool) -> 
             pass
         volumes.append('{}:/home/user'.format(os.path.join(CONFIG_PATH, 'storage', config.get_key())))
         if verbose:
-            print("Using temporary filesystem.")
+            log.info("Using temporary filesystem.")
     else:
         if verbose:
-            print("Using persistent filesystem.")
+            log.info("Using persistent filesystem.")
 
     if config.privileged:
         if verbose:
-            print("Privileged mode.")
+            log.info("Privileged mode.")
         extras.append('--privileged')
         extras.append('--net=host')
 

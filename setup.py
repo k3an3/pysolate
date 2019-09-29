@@ -9,6 +9,9 @@ setup(
     author="Keane O'Kelley",
     author_email='keane.m.okelley@gmail.com',
     description='',
+    install_requires=[
+        'colorful'
+    ],
     entry_points={
         'console_scripts': [
             'c=pysolate.cli:main',

@@ -1,6 +1,8 @@
 import os
 from typing import Any, Dict, List
 
+import colorful
+
 CONFIG_PATH = os.path.expanduser('~/.config/pysolate')
 CONFIG_FILE = os.path.join(CONFIG_PATH, 'config.ini')
 
@@ -47,3 +49,22 @@ class AppConfig:
         :return: A unique key identifying this command.
         """
         return self.full_command.split(" ")[0]
+
+
+class Log:
+    prefix = "[{}]"
+
+    def _print(self, symbol: str, *args, **kwargs):
+        print(self.prefix.format(symbol), *args, **kwargs)
+
+    def info(self, *args, **kwargs):
+        self._print(colorful.blue("*"), *args, **kwargs)
+
+    def success(self, *args, **kwargs):
+        self._print(colorful.green("+"), *args, **kwargs)
+
+    def error(self, *args, **kwargs):
+        self._print(colorful.red("-"), *args, **kwargs)
+
+
+log = Log()

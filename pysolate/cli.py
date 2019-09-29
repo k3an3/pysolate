@@ -4,7 +4,7 @@ import shelve
 from configparser import ConfigParser
 from typing import Dict
 
-from pysolate import CONFIG_FILE, CONFIG_PATH, config_defaults, AppConfig
+from pysolate import CONFIG_FILE, CONFIG_PATH, config_defaults, AppConfig, log
 from pysolate.container import build_container, executable, prepare_run_command, container_build_required, run_command
 
 
@@ -69,7 +69,7 @@ def load_shelf() -> shelve.Shelf:
     try:
         return shelve.open(os.path.join(CONFIG_PATH, 'data'))
     except OSError:
-        print("Failed to open shelve config store. Maybe another instance has locked it? Bailing...")
+        log.error("Failed to open shelve config store. Maybe another instance has locked it? Bailing...")
         raise SystemExit
 
 
@@ -94,7 +94,7 @@ def get_cmd_config(cmd_key: str, args: argparse.Namespace) -> AppConfig:
 
 def main():
     if not executable:
-        print("No suitable containerization engines found.")
+        log.error("No suitable containerization engines found.")
         raise SystemExit
     args = parse_args()
     main_config = get_main_config()
@@ -108,9 +108,9 @@ def main():
     full_command = prepare_run_command(run_config, args.command, args.verbose)
 
     if args.verbose:
-        print("Full command:", full_command)
-        print("Running as user:", args.uid)
-        print("Debug:", run_config.__dict__)
+        log.info("Full command:", full_command)
+        log.info("Running as user:", args.uid)
+        log.info("Debug:", run_config.__dict__)
     run_command(full_command, run_config)
 
 
