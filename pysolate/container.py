@@ -117,6 +117,11 @@ def prepare_run_command(config: AppConfig, full_command: str, verbose: bool) -> 
         extras.append('--privileged')
         extras.append('--net=host')
 
+    if config.no_net:
+        if verbose:
+            log.info("Disabling networking.")
+        extras.append("--net=none")
+
     if 'podman' in executable:
         extras.append('--userns=keep-id')
 

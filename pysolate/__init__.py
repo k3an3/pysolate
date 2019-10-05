@@ -33,7 +33,7 @@ class AppConfig:
 
     def __init__(self, full_command: str, pass_dir: bool = False, pass_tmp: bool = True,
                  uid: int = 1000, persist: bool = True, interactive: bool = False,
-                 privileged: bool = False, volumes: List = []):
+                 privileged: bool = False, volumes: List = [], no_net: bool = False):
         self.full_command = full_command
         self.pass_dir = pass_dir
         self.uid = uid
@@ -42,6 +42,7 @@ class AppConfig:
         self.interactive = interactive
         self.privileged = privileged
         self.volumes = volumes
+        self.no_net = no_net
 
     def get_key(self) -> str:
         """

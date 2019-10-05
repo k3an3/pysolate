@@ -36,6 +36,7 @@ def parse_args():
                         help='Mount additional volumes to container. Must provide '
                              'in format: <host_path>:<container_path>')
     parser.add_argument('-l', '--privileged', action='store_true', help='Use privileged mode.')
+    parser.add_argument('-n', '--no-net', action='store_true', help='Disable all networking')
     parser.add_argument('command', default='bash', nargs='?', help='Command to run in container.')
     return parser.parse_args()
 
@@ -87,9 +88,10 @@ def get_cmd_config(cmd_key: str, args: argparse.Namespace) -> AppConfig:
     interactive = config.interactive or args.interactive
     privileged = config.privileged or args.privileged
     volumes = set([*config.volumes, *args.volume])
+    no_net = config.no_net or args.no_net
 
     shelf.close()
-    return AppConfig(args.command, pass_dir, pass_tmp, args.uid, persist, interactive, privileged, volumes)
+    return AppConfig(args.command, pass_dir, pass_tmp, args.uid, persist, interactive, privileged, volumes, no_net)
 
 
 def main():
