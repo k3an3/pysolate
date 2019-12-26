@@ -70,7 +70,7 @@ def container_build_required() -> bool:
         if IMAGE_NAME in line:
             age = re.search(r'([0-9]+) weeks ago', line)
             if age and int(age.group(1)) > 2:
-                answer = input("Image is {} weeks old, perform update? [Y/n]: ")
+                answer = input(f"Image is {age.group(1)} weeks old, perform update? [Y/n]: ")
                 if answer.lower() in ['', 'y']:
                     break
             return False
