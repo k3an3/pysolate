@@ -125,8 +125,10 @@ def prepare_run_command(config: AppConfig, full_command: str, verbose: bool) -> 
     if 'podman' in executable:
         extras.append('--userns=keep-id')
 
+    display = os.environ.get('DISPLAY')
+
     return RUN_COMMAND.format(executable, '-v ' + ' -v '.join(volumes),
-                              ' '.join(extras), os.environ['DISPLAY'],
+                              ' '.join(extras), display,
                               IMAGE_NAME, full_command)
 
 

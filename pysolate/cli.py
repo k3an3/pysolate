@@ -32,6 +32,7 @@ def parse_args():
                                                                         "home directory after "
                                                                         "session.")
     parser.add_argument('-V', '--verbose', action='store_true', help='Print detailed output.')
+    parser.add_argument('-m', '--headless', action='store_true', help='No prompts. Useful for running from desktop shortcut.')
     parser.add_argument('-v', '--volume', action='append', default=[],
                         help='Mount additional volumes to container. Must provide '
                              'in format: <host_path>:<container_path>')
@@ -102,7 +103,7 @@ def main():
     main_config = get_main_config()
     core_config = main_config['pysolate']
 
-    if args.update or args.update_with_cache or container_build_required():
+    if not args.headless and (args.update or args.update_with_cache or container_build_required()):
         build_container(core_config, args.update_with_cache)
 
     cmd_key = args.command.split(" ")[0]
