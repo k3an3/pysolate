@@ -32,10 +32,10 @@ RUN_COMMAND = """{} run --rm -it \
 
 
 def get_container_executable() -> str:
-    if DOCKER_EXEC:
-        return 'sudo ' + DOCKER_EXEC
-    elif PODMAN_EXEC:
+    if PODMAN_EXEC:
         return PODMAN_EXEC
+    elif DOCKER_EXEC:
+        return 'sudo ' + DOCKER_EXEC
     return None
 
 
